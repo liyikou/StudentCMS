@@ -27,6 +27,7 @@ def update_dict_values(origin_dict, new_dict):
             
 
 def format_print(action: str, message):
+    # 格式化输出
     """ 
     一般用datetime，更适合日期相关的处理；time 适合于基本的时间相关操作；
     转换时间格式的，用strftime和f-sting 都可以
