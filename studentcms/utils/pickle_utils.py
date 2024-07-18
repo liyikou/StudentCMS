@@ -1,10 +1,8 @@
 import pickle
 import os
-from typing import Dict
 
 # from .public_utils import update_dict_values
-# from .. import settings
-from settings import DATA_PICKLE_PATH
+from ..settings import DATA_PICKLE_PATH
 
 # # TODO: 现在做到设计model，然后想到了用pickle来存放各表最新的id值，然后写了一下pickle的实现；考虑一下保存方式，假如用csv呢？还需要用pickle来长期存储吗？
 # def update_pickle_data(new_data: Dict, cover_update=True):

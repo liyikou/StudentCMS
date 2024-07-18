@@ -1,0 +1,23 @@
+[flake8]
+max-line-length = 120
+extend-ignore =
+    # Ignore long lines for now
+    E501
+exclude =
+    # No need to traverse our git directory
+    .git
+    # There's no value in checking cache directories
+    __pycache__
+    # Tests and scripts do not need testing for now
+    tests
+    script
+    # TODO: will open later
+    wsgi.py
+    *settings*.py
+    middleware/fixup_cookie.py
+max-complexity = 10
+require-plugins =
+    flake8-django
+    flake8-django-migrations
+    flake8-jira-todo-checker
+    flake8-secure-coding-standard

@@ -1,4 +1,4 @@
-from ui import UserInterfaceManager
+from studentcms.ui import UserInterfaceManager
 
 
 if __name__ == "__main__":

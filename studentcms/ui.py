@@ -1,7 +1,6 @@
 # UI lever
-import sys
 import os
-from bll import StudentManager
+from .bll import StudentManager
 
 
 class UserInterfaceManager:

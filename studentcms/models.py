@@ -1,8 +1,6 @@
-import os
-
-import settings
-from utils.pickle_utils import load_pickle_file, update_pickle_file
-from utils.public_utils import format_print, is_name_valid, is_id_card_valid, is_phone_number_valid, handle_keyboard_interrupt
+from . import settings
+from .utils.pickle_utils import load_pickle_file, update_pickle_file
+from .utils.public_utils import format_print, is_name_valid, is_id_card_valid, is_phone_number_valid, handle_keyboard_interrupt
 
 
 # 存储结构
