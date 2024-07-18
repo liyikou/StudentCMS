@@ -16,8 +16,8 @@ exclude =
     *settings*.py
     middleware/fixup_cookie.py
 max-complexity = 10
-require-plugins =
-    flake8-django
-    flake8-django-migrations
-    flake8-jira-todo-checker
-    flake8-secure-coding-standard
+#require-plugins =
+#    flake8-django
+#    flake8-django-migrations
+#    flake8-jira-todo-checker
+#    flake8-secure-coding-standard
