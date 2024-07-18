@@ -14,7 +14,3 @@ jobs:
 
     - name: Flake8-Lint
       uses: TrueBrain/actions-flake8@v2
-      with:
-        # 可以在这里添加Flake8的配置选项
-        # 例如最大行长度
-        config-file: '.flake8'
