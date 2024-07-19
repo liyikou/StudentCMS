@@ -306,7 +306,7 @@ class StudentList(SqList, Student):
                 key = option_key_map[option]
                 processed_data = self.handle_input(f'Enter student {key}: ', key)
                 success, msg = super().delete_item_by_key_value(key, processed_data)
-                format_print(f'DELETE {'FAILED' if not success else 'SUCCESS'}', msg)
+                format_print(f"DELETE {'FAILED' if not success else 'SUCCESS'}", msg)
     
     @handle_keyboard_interrupt  # TODO: 给所有有input的都加上
     def get_student(self):
