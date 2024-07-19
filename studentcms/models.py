@@ -7,7 +7,7 @@ from .utils.public_utils import format_print, is_name_valid, is_id_card_valid, i
 class Person:
     required_attrs = ('name', 'gender', 'age')  # 不需要变的数据用元组比较好
     optional_attrs = ('id_card', 'phone_number', 'address')
-    
+
     def __init__(self, name, gender, age, **kwargs):
         self.name = name
         self.gender = gender  # 0: female; 1: male
@@ -16,7 +16,7 @@ class Person:
         for k, v in kwargs.items():
             if k in Person.optional_attrs:
                 setattr(self, k, v)
-                
+
     def __str__(self) -> str:  # 类型注解，Python3.5 引入
         return f'{self.name.title()} -- {self.gender_display}'
     
@@ -60,7 +60,7 @@ class Student(Person):  # 继承
         if not student_id:
             student_id = 1
         pickle_data['student_id'] = student_id + 1
-        update_pickle_file(settings.DATA_PICKLE_PATH, pickle_data)           
+        update_pickle_file(settings.DATA_PICKLE_PATH, pickle_data)
         return student_id
     
     def print_student_info(self):
@@ -130,10 +130,10 @@ class Course:
         if not course_id:
             course_id = 1
         pickle_data['course_id'] = course_id + 1
-        update_pickle_file(settings.DATA_PICKLE_PATH, pickle_data)           
+        update_pickle_file(settings.DATA_PICKLE_PATH, pickle_data)
         return course_id
 
-    def print_course_info(self):        
+    def print_course_info(self):
         print(f'Course ID: {self.id}\tCourse Name: {self.name}\tTeacher: {self.teacher}')
 
 
@@ -149,7 +149,7 @@ class SqList:
         self.model = Item
         self.sq_list: list[Item] = []
         self.length = 0
-        # 
+        #
         self.check_key_value = getattr(Item, 'check_data', lambda x, y, z=None: (False, 'Item has no check_data method.'))
 
     def is_empty(self):
@@ -162,7 +162,7 @@ class SqList:
             i (int): index
 
         Returns:
-            bool: True if index is valid, False otherwise.    
+            bool: True if index is valid, False otherwise.
         """
         if self.is_empty():
             return False, 'List is empty.'
@@ -301,7 +301,7 @@ class StudentList(SqList, Student):
             option = input('Invalid option. Please enter again: ')
         else:
             if option == '3':
-                format_print(f'DELETE', 'Delete canceled.')
+                format_print('DELETE', 'Delete canceled.')
             else:
                 key = option_key_map[option]
                 processed_data = self.handle_input(f'Enter student {key}: ', key)
@@ -338,7 +338,7 @@ class StudentList(SqList, Student):
             student.print_student_info_simply()
 
     def update_student_info(self):  # TODO: 2024/7/14 继续修改，优化现在的逻辑
-        """ 
+        """
         update = get + reset
         但是不能用封装的get_student()，因为其是封装好的查询+print。
         get_item_by_key_value() 返回一个Student对象，而该系统的理念是先获取 index 然后进行 update，故也不能用。
@@ -381,7 +381,7 @@ class StudentList(SqList, Student):
                     new_attr_value = self.handle_input(f'Please enter the new {attr_name}: ', attr_name)
                     success, msg = super()._update_item_attr_by_index(i_or_msg, attr_name, new_attr_value, False, False)
                     format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
-                elif option == '4': # TODO: 继续修改 while循环
+                elif option == '4':  # TODO: 继续修改 while循环
                     key = input('Please enter the property you want to change: ')
                     value = self.handle_input(f'Please enter the student\'s {key}: ', key)
                     success, msg = super()._update_item_attr_by_index(i_or_msg, key, value, False, True)

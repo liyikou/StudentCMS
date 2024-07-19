@@ -9,7 +9,7 @@ from ..settings import DATA_PICKLE_PATH
 #     with open(DATA_PICKLE_PATH, 'rb') as f:
 #         data = pickle.load(f)
 #     if cover_update:
-#         data.update(new_data)      
+#         data.update(new_data)
 #     else:
 #         update_dict_values(data, new_data)
 #     with open(DATA_PICKLE_PATH, 'wb') as f:  # 'wb'覆盖写入
@@ -66,4 +66,3 @@ if __name__ == "__main__":
     remove_pickle_file(DATA_PICKLE_PATH)
     data = load_pickle_file(DATA_PICKLE_PATH)
     print(data)
-

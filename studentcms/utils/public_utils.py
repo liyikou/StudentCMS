@@ -28,7 +28,7 @@ def update_dict_values(origin_dict, new_dict):
 
 def format_print(action: str, message):
     # 格式化输出
-    """ 
+    """
     一般用datetime，更适合日期相关的处理；time 适合于基本的时间相关操作；
     转换时间格式的，用strftime和f-sting 都可以
     """
@@ -86,7 +86,8 @@ def is_name_valid(name: str):
         return True
     else:
         return False
-    
+
+
 def handle_keyboard_interrupt(func):
     def wrapper(*args, **kwargs):
         try:
@@ -104,12 +105,11 @@ def save_data_to_csv(objs, filename):
         for obj in objs:
             writer.writerow([obj.id, obj.name, obj.age])
 
+
 def load_data_from_csv(filename, Obj):
     with open(filename, mode='r') as file:
         csv_rows = csv.DictReader(file)
-        for row in csv_rows:  
+        for row in csv_rows:
             # Obj(int(row['id']), row['name'], int(row['age']))
             pass  # TODO: Obj.add_item(Obj(int(row['id']), row['name'], int(row['age'])))
     return
-
-

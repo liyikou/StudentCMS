@@ -19,8 +19,7 @@ class UserInterfaceManager:
     def __init__(self):
         # 将 manager 设置为实例属性，而不是类属性，以便每个实例可以管理不同的 StudentManager 实例
         self.manager = StudentManager()
-        
-    
+
     def display_menu(self):
         for key, value in self.OPTIONS.items():
             self.format_print(f'{key}. {value}')
@@ -65,8 +64,3 @@ class UserInterfaceManager:
                 print('Invalid option, please try again.')
                 os.system('pause')
         return
-                
-        
-    
-    
-    
