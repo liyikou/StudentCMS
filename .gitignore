@@ -1,0 +1,9 @@
+# IDE setting files
+.idea/
+.vscode/
+
+# pycache
+__pycache__/
+
+# pickle files
+*.pkl
