@@ -86,6 +86,15 @@ def is_name_valid(name: str):
         return True
     else:
         return False
+    
+
+def is_student_number_valid(student_number: str):
+    # eg. 20194051220
+    pattern = r"^\d{11}$"  # 正则表达式验证学号格式,11位数字
+    if re.match(pattern, student_number):
+        return True
+    else:
+        return False
 
 
 def handle_keyboard_interrupt(func):

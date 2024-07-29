@@ -1,6 +1,7 @@
 from . import settings
 from .utils.pickle_utils import load_pickle_file, update_pickle_file
-from .utils.public_utils import format_print, is_name_valid, is_id_card_valid, is_phone_number_valid, handle_keyboard_interrupt
+from .utils.public_utils import format_print, is_name_valid, is_id_card_valid, is_phone_number_valid, \
+    handle_keyboard_interrupt, is_student_number_valid
 
 
 # 存储结构
@@ -44,12 +45,15 @@ class Person:
 
         
 class Student(Person):  # 继承
-    def __init__(self, name, gender, age, **kwargs):
+    required_attrs = Person.required_attrs + ('student_number', )  # 元组内不可变，但是两个元组可以拼接
+    
+    def __init__(self, student_number, name, gender, age, **kwargs):
         super().__init__(name, gender, age, **kwargs)  # 调用父类的初始化，先把父类这些 实例属性 初始化
-        self.id = self.get_new_unique_stu_id()
+        self.id = self.get_new_unique_stu_id()  # 表id
+        self.student_number = student_number  # 学号
 
     def __str__(self) -> str:  # 重构
-        desc1 = f'{self.id}'
+        desc1 = f'{self.student_number}'
         desc2 = super().__str__()
         return ' -- '.join((desc1, desc2))  # 字符串拼接
              
@@ -71,13 +75,13 @@ class Student(Person):  # 继承
     @classmethod
     def print_columns_name(cls):
         # print('\t\t'.join(self.all_attrs))
-        print(f"{'ID':<5}{'Name':<20}{'Gender':<10}{'Age':<5}{'ID Card':<20}{'Phone Number':<20}{'Address':<20}")  # <:左对齐，>:右对齐，^:居中； 20:长度；
+        print(f"{'Student Number':<15}{'Name':<20}{'Gender':<10}{'Age':<5}{'ID Card':<20}{'Phone Number':<20}{'Address':<20}")  # <:左对齐，>:右对齐，^:居中； 20:长度；
     
     def print_student_info_simply(self):
-        """f-string 设置对齐效果比 \\t 好 """
+        """f-string 设置对齐效果比 \\t 和 print的%s 好 """
         # print('\t\t'.join([str(getattr(self, attr)) for attr in self.all_attrs if getattr(self, attr, None)]))
         optional_attrs_str = ''.join([f'{getattr(self, attr):<20}' if getattr(self, attr, None) else f"{'':<20}" for attr in self.optional_attrs])
-        print(f"{self.id:<5}{self.name:<20}{self.gender_display:<10}{self.age:<5}{optional_attrs_str}")
+        print(f"{self.student_number:<15}{self.name:<20}{self.gender_display:<10}{self.age:<5}{optional_attrs_str}")
     
     # @classmethod
     # def is_attr_valid(cls, key: str):
@@ -91,6 +95,7 @@ class Student(Person):  # 继承
         else:
             if cls.is_attr_required(key) or value:  # attr is required OR value is not blank
                 check_func_map = {
+                    'student_number': is_student_number_valid,
                     'name': is_name_valid,
                     'gender': lambda x: x in (0, 1),
                     'age': lambda x: x >= 6 and x <= 123,
@@ -106,7 +111,7 @@ class Student(Person):  # 继承
     @classmethod
     def process_input(cls, key: str, value):
         try:
-            if key in ('id', 'gender', 'age'):
+            if key in ('gender', 'age'):
                 return int(value)
             else:
                 return value
@@ -198,7 +203,7 @@ class SqList:
             attr = getattr(item, key)
             if attr == value:
                 return True, i  # This index do not need to do is_index_valid().
-        return False, f'{self.model.__name__} has no item with {key}={value}.'
+        return False, f'{self.model.__name__} with {key}={value} not found.'
     
     def get_item_by_key_value(self, key: str, value):
         """Get item by key-value."""
@@ -268,7 +273,7 @@ class SqList:
     #     return self._update_item_attr_by_index(i_or_msg, key, new_value, False)
     
     
-class StudentList(SqList, Student):
+class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一下逻辑
     def __init__(self):
         super().__init__(Student)  # 根据 MRO 顺序，会执行 SqList.__init__()
         self.student_list = self.sq_list  # 引用 SqList 的 sq_list
@@ -278,7 +283,7 @@ class StudentList(SqList, Student):
         processed_user_input = self.process_input(key, user_input)
         return processed_user_input
 
-    def add_student(self):
+    def add_student(self):  # ps. 因为之前的for循环设计，这个add方法不需要改了。👍
         print("Please enter student information:")
         input_data = {}
         for attr in super(SqList, self).all_attrs:  # 根据 MRO 顺序，super(SqList, self) == Student
