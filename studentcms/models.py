@@ -45,7 +45,7 @@ class Person:
 
         
 class Student(Person):  # 继承
-    required_attrs = Person.required_attrs + ('student_number', )  # 元组内不可变，但是两个元组可以拼接
+    required_attrs = ('student_number', ) + Person.required_attrs  # 元组内不可变，但是两个元组可以拼接
     
     def __init__(self, student_number, name, gender, age, **kwargs):
         super().__init__(name, gender, age, **kwargs)  # 调用父类的初始化，先把父类这些 实例属性 初始化
@@ -104,10 +104,12 @@ class Student(Person):  # 继承
                     'address': lambda _: True  # TODO: 让address成为选项，Choice那种
                 }
                 func = check_func_map.get(key)
-                if func and not func(value):
-                    return False, f'{value} is an invalid {key.capitalize()}.'
+                if not func:
+                    return False, f'Invalid {key}'
+                elif not func(value):
+                    return False, f'{value} is an invalid {key.replace('_', ' ').title()}.'
             return True, ''
-    
+                
     @classmethod
     def process_input(cls, key: str, value):
         try:
@@ -224,7 +226,7 @@ class SqList:
         except ValueError:
             return False, f'{self.model.__name__} {item} not found.'
         else:
-            return True, f'{self.model.__name__} {item} deleted.'
+            return True, f'{self.model.__name__} {item} deleted.'  # try没有异常时执行，也可以直接放到try中，取消else部分
         
     def _delete_item_by_index(self, i: int, need_check_index=True):
         if need_check_index:
@@ -278,16 +280,32 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         super().__init__(Student)  # 根据 MRO 顺序，会执行 SqList.__init__()
         self.student_list = self.sq_list  # 引用 SqList 的 sq_list
     
+    @handle_keyboard_interrupt
     def handle_input(self, prompt, key):
+        """ 处理用户输入 """
         user_input = input(prompt)
         processed_user_input = self.process_input(key, user_input)
         return processed_user_input
+    
+    @handle_keyboard_interrupt
+    def handle_options(self, prompt, options_mapping) -> str:
+        """ 处理用户选项输入 """
+        option_items = [f"'{key}': {value.replace('_', ' ').title()}" for key, value in options_mapping.items()]
+        options_str = '\n'.join(option_items) + '\n\'Q(q)\': Cancel and Return to Menu\n' + 'Enter your choice: '
+        prompt += '\n' + options_str
+        while True:
+            option = input(prompt)
+            if option in options_mapping or option.lower() == 'q':
+                return option.lower()
+            else:
+                print('Invalid option. Please enter again: ')
 
     def add_student(self):  # ps. 因为之前的for循环设计，这个add方法不需要改了。👍
+        """ 添加学生信息 """
         print("Please enter student information:")
         input_data = {}
         for attr in super(SqList, self).all_attrs:  # 根据 MRO 顺序，super(SqList, self) == Student
-            prompt = f'{attr.capitalize()}{"(Optional)" if attr in super(SqList, self).optional_attrs else ""}: '
+            prompt = f'{attr.replace('_', ' ').title()}{"(Optional)" if attr in super(SqList, self).optional_attrs else ""}: '
             processed_input = self.handle_input(prompt, attr)
             input_data[attr] = processed_input  # 动态创建变量方式：1. global()[attr] 2. 字典
             success, msg = self.check_data(attr, input_data[attr], False)
@@ -297,44 +315,54 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         return super().add_item(Student(**input_data))
     
     def delete_student(self):
+        """ 删除学生信息 """
+        """ 发现这个不符合逻辑，没有确认删除，
+        但是如果加上确认删除，就需要先展示学生信息，就需要get_student ，那先get到学生数据了都，再去查一遍进行删除，那还不如直接用remove，
+        也就是delete_student_2的逻辑。 """
         option_key_map = {
-            '1': 'id',
+            '1': 'student_number',
             '2': 'name',
         }
-        option = input('Which way do you want to delete? (1) by id; (2) by name; (3) cancel: ')  # TODO: pack to function
-        while option not in ['1', '2', '3']:
-            option = input('Invalid option. Please enter again: ')
-        else:
-            if option == '3':
-                format_print('DELETE', 'Delete canceled.')
-            else:
-                key = option_key_map[option]
-                processed_data = self.handle_input(f'Enter student {key}: ', key)
-                success, msg = super().delete_item_by_key_value(key, processed_data)
-                format_print(f"DELETE {'FAILED' if not success else 'SUCCESS'}", msg)
+        option = self.handle_options('Which way do you want to delete?', option_key_map)
+        if option == 'q':
+            return
+        key = option_key_map[option]
+        processed_data = self.handle_input(f'Enter student\' {key.replace('_', ' ').title()}: ', key)
+        success, msg = super().delete_item_by_key_value(key, processed_data)
+        format_print(f"DELETE {'FAILED' if not success else 'SUCCESS'}", msg)
     
-    @handle_keyboard_interrupt  # TODO: 给所有有input的都加上
+    def delete_student_2(self):
+        """ 删除学生信息 """
+        student = self.get_student()
+        option = input('Confirm to delete? [y/n] ')
+        if option.lower() == 'y':
+            success, msg = self.delete_item(student)
+            format_print(f"DELETE {'FAILED' if not success else 'SUCCESS'}", msg)
+        else:
+            print('Canceled.')
+        
     def get_student(self):
-        option_key_map = {  # TODO: 查找逻辑，需要封装一下，很多地方在用
-            '1': 'id',
+        """ 查找学生信息 """
+        option_key_map = {
+            '1': 'student_number',
             '2': 'name',
         }
-        option = input('Which way do you want to get? (1) by id; (2) by name; (3) cancel: ')
-        while option not in ['1', '2', '3']:
-            option = input('Invalid option. Please enter again: ')
-        if option == '3':
-            format_print('GET', 'Get canceled.')
-        else:
-            key = option_key_map[option]
-            processed_data = self.handle_input(f'Enter student {key}: ', key)
-            success, student_or_msg = super().get_item_by_key_value(key, processed_data)
+        option = self.handle_options('Which way do you want to get?', option_key_map)
+        if option == 'q':
+            return
+        key = option_key_map[option]
+        processed_data = self.handle_input(f'Enter student\'s {key.replace('_', ' ').title()}: ', key)
+        success, student_or_msg = super().get_item_by_key_value(key, processed_data)
         if success and isinstance(student_or_msg, Student):
             format_print('GET', 'Here are the student info:')
             student_or_msg.print_student_info()
+            return student_or_msg
         elif isinstance(student_or_msg, str):
             format_print('GET', student_or_msg)
+            return
             
     def show_all_student_info(self):  # TODO: 分页; show 选课和课程成绩信息；
+        """ 显示所有学生信息 """
         if self.is_empty():
             format_print('Show Students', 'There is no student.')
             return
@@ -342,7 +370,8 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         for student in self.student_list:
             student.print_student_info_simply()
 
-    def update_student_info(self):  # TODO: 2024/7/14 继续修改，优化现在的逻辑
+    def update_student_info(self):  # noqa: C901
+        """ 更新学生信息 """
         """
         update = get + reset
         但是不能用封装的get_student()，因为其是封装好的查询+print。
@@ -350,53 +379,93 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         只能用_get_item_index_by_key_value() + _update_item_attr_by_index()
         """
         options_mapping = {
-            '1': 'id',
+            '1': 'student_number',
             '2': 'name',
         }
-        option = input('Which way do you want to update? (1) by id; (2) by name; (3) cancel: ')
-        while option not in ['1', '2', '3']:
-            option = input('Invalid option. Please enter again: ')
-        else:
-            if option in ['1', '2']:
-                key = options_mapping[option]
-                value = self.handle_input(f'Enter student\'s {key}: ', key)
-                success, i_or_msg = super()._get_item_index_by_key_value(key, value)
-            else:
-                format_print('UPDATE', 'Update canceled.')
-                return
+        option = self.handle_options('Which way do you want to update?', options_mapping)
+        if option == 'q':
+            return
+        key = options_mapping[option]
+        value = self.handle_input(f'Enter student\'s {key}: ', key)
+        success, i_or_msg = super()._get_item_index_by_key_value(key, value)
         if not success:
             format_print('UPDATE', i_or_msg)
             return
         elif isinstance(i_or_msg, int):  # success == True does mean i_or_msg is index, use isinstance for type checking
+            # TODO: show old student info
             options_mapping = {
                 '1': 'name',
                 '2': 'age',
                 '3': 'gender',
-                # '4': 'id_number',  # TODO: id_number
+                '4': 'student_number',  # TODO: id_number
                 # '5': 'phone_number',
-                '4': 'else',
-                '5': 'all'
+                '5': 'else',
+                '6': 'all'
             }
-            option = input('Please enter the property you want to change: (1) name (2) age (3) gender (4) else (5) all (6) cancel: ')  # TODO: 更新输入的数据没有进行校验
-            while option not in options_mapping:  # dict可以直接用in来判断key 是否存在
-                option = input('Invalid option. Please enter again: ')
-            else:
-                if option in ['1', '2', '3']:
-                    attr_name = options_mapping[option]
-                    new_attr_value = self.handle_input(f'Please enter the new {attr_name}: ', attr_name)
-                    success, msg = super()._update_item_attr_by_index(i_or_msg, attr_name, new_attr_value, False, False)
+            option = self.handle_options('Please enter the property you want to change,', options_mapping)
+            if option == 'q':
+                return
+            elif option in ['1', '2', '3']:
+                attr_name = options_mapping[option]
+                new_attr_value = self.handle_input(f'Please enter the new {attr_name}: ', attr_name)
+                success, msg = self.check_data(attr_name, new_attr_value, False)
+                if not success:
+                    format_print(action='update failed', message=msg)
+                    return False, msg
+                success, msg = super()._update_item_attr_by_index(i_or_msg, attr_name, new_attr_value, False, False)
+                format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
+            elif option == '4':  # TODO: 继续修改 while循环
+                key = input('Please enter the property you want to change: ')
+                value = self.handle_input(f'Please enter the student\'s {key}: ', key)
+                success, msg = self.check_data(key, value, False)
+                if not success:
+                    format_print(action='update failed', message=msg)
+                    return False, msg
+                success, msg = super()._update_item_attr_by_index(i_or_msg, key, value, False, True)
+                format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
+            elif option == '5':
+                for key in self.all_attrs:  # TODO: 这里不应该一个个update？但这也不是数据库，应该也可以
+                    new_attr_value = self.handle_input(f'Please enter the new {key}: ', key)  # TODO: 输入回车，是覆盖，还是跳过？
+                    success, msg = self.check_data(key, new_attr_value, False)
+                    if not success:
+                        format_print(action='update failed', message=msg)
+                        return False, msg
+                    success, msg = super()._update_item_attr_by_index(i_or_msg, key, new_attr_value, False, False)
                     format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
-                elif option == '4':  # TODO: 继续修改 while循环
-                    key = input('Please enter the property you want to change: ')
-                    value = self.handle_input(f'Please enter the student\'s {key}: ', key)
-                    success, msg = super()._update_item_attr_by_index(i_or_msg, key, value, False, True)
-                    format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
-                elif option == '5':
-                    for key in self.all_attrs:  # TODO: 这里不应该一个个update？但这也不是数据库，应该也可以
-                        new_attr_value = self.handle_input(f'Please enter the new {key}: ', key)  # TODO: 输入回车，是覆盖，还是跳过？
-                        success, msg = super()._update_item_attr_by_index(i_or_msg, key, new_attr_value, False, False)
-                        format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
                     
+    def update_student(self):
+        """ 更新学生信息 """
+        student = self.get_student()
+        if not student:
+            return False, 'No student found'
+        options_mapping = {
+            '1': 'name',
+            '2': 'age',
+            '3': 'gender',
+            '4': 'student_number',
+            '5': 'else',
+            '6': 'all'
+        }
+        option = self.handle_options('Please enter the property you want to change,', options_mapping)
+        need_check_key = False
+        if option == 'q':
+            return
+        elif option in ['1', '2', '3', '4']:
+            to_update_attrs = [options_mapping[option]]
+        elif option == '5':
+            to_update_attrs = [input('Please enter the property you want to change: ')]
+            need_check_key = True
+        else:
+            to_update_attrs = self.all_attrs
+        for attr_name in to_update_attrs:
+            new_attr_value = self.handle_input(f'Please enter the new {attr_name.replace('_', ' ').title()}: ', attr_name)
+            success, msg = self.check_data(attr_name, new_attr_value, need_check_key)
+            if not success:
+                format_print(action='update failed', message=msg)
+                return False, msg
+            setattr(student, attr_name, new_attr_value)  # Update attribute
+            format_print(f"UPDATE {'SUCCESS' if success else 'FAILED'}", msg)
+
     def student_course_score_statistics(self):
         pass
                     

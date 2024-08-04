@@ -35,7 +35,7 @@ def format_print(action: str, message):
     # from time import localtime, strftime
     # print(f'{strftime('%Y-%m-%d %H:%M:%S', localtime())} [{action.upper()}] {message}')
     # print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{action.upper()}] {message}')
-    print(f'{datetime.now(): %Y-%m-%d %H:%M:%S} [{action.upper()}] {message}')  # f-string 可以直接转换 datetime 类型的数据
+    print(f'{datetime.now():%Y-%m-%d %H:%M:%S} [{action.upper()}] {message}')  # f-string 可以直接转换 datetime 类型的数据
    
     
 def format_result(code, message, data=None):
@@ -102,7 +102,7 @@ def handle_keyboard_interrupt(func):
         try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            format_print('GET', 'Get canceled.')
+            print('Operation canceled.')
             return False
     return wrapper
 

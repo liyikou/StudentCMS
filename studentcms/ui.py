@@ -46,13 +46,13 @@ class UserInterfaceManager:
                 self.manager.add_student()  # TODO: 不需要返回值，error需要print
                 os.system('pause')
             elif option == '3':
-                self.manager.delete_student()
+                self.manager.delete_student_2()
                 os.system('pause')
             elif option == '4':
                 self.manager.get_student()
                 os.system('pause')
             elif option == '5':
-                self.manager.update_student_info()
+                self.manager.update_student()
                 os.system('pause')
             elif option == '6':
                 self.manager.student_course_score_statistics()  # TODO: 这个需要做完 Course 相关才能进行成绩统计
