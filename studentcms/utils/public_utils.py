@@ -35,7 +35,7 @@ def format_print(action: str, message):
     # from time import localtime, strftime
     # print(f'{strftime('%Y-%m-%d %H:%M:%S', localtime())} [{action.upper()}] {message}')
     # print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{action.upper()}] {message}')
-    print(f'{datetime.now(): %Y-%m-%d %H:%M:%S} [{action.upper()}] {message}')  # f-string 可以直接转换 datetime 类型的数据
+    print(f'{datetime.now():%Y-%m-%d %H:%M:%S} [{action.upper()}] {message}')  # f-string 可以直接转换 datetime 类型的数据
    
     
 def format_result(code, message, data=None):
@@ -86,6 +86,15 @@ def is_name_valid(name: str):
         return True
     else:
         return False
+    
+
+def is_student_number_valid(student_number: str):
+    # eg. 20194051220
+    pattern = r"^\d{11}$"  # 正则表达式验证学号格式,11位数字
+    if re.match(pattern, student_number):
+        return True
+    else:
+        return False
 
 
 def handle_keyboard_interrupt(func):
@@ -93,7 +102,7 @@ def handle_keyboard_interrupt(func):
         try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            format_print('GET', 'Get canceled.')
+            print('Operation canceled.')
             return False
     return wrapper
 
