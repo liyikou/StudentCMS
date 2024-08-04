@@ -107,7 +107,7 @@ class Student(Person):  # 继承
                 if not func:
                     return False, f'Invalid {key}'
                 elif not func(value):
-                    return False, f'{value} is an invalid {key.replace('_', ' ').title()}.'
+                    return False, f"{value} is an invalid {cls.display_attr(key)}."
             return True, ''
                 
     @classmethod
@@ -119,6 +119,10 @@ class Student(Person):  # 继承
                 return value
         except ValueError:
             return value
+        
+    @classmethod
+    def display_attr(cls, attr: str):
+        return attr.replace('_', ' ').title()
         
 
 class Course:
@@ -290,7 +294,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
     @handle_keyboard_interrupt
     def handle_options(self, prompt, options_mapping) -> str:
         """ 处理用户选项输入 """
-        option_items = [f"'{key}': {value.replace('_', ' ').title()}" for key, value in options_mapping.items()]
+        option_items = [f"'{key}': {self.display_attr(value)}" for key, value in options_mapping.items()]
         options_str = '\n'.join(option_items) + '\n\'Q(q)\': Cancel and Return to Menu\n' + 'Enter your choice: '
         prompt += '\n' + options_str
         while True:
@@ -305,7 +309,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         print("Please enter student information:")
         input_data = {}
         for attr in super(SqList, self).all_attrs:  # 根据 MRO 顺序，super(SqList, self) == Student
-            prompt = f'{attr.replace('_', ' ').title()}{"(Optional)" if attr in super(SqList, self).optional_attrs else ""}: '
+            prompt = f"{self.display_attr(attr)}{'(Optional)' if attr in super(SqList, self).optional_attrs else ''}: "
             processed_input = self.handle_input(prompt, attr)
             input_data[attr] = processed_input  # 动态创建变量方式：1. global()[attr] 2. 字典
             success, msg = self.check_data(attr, input_data[attr], False)
@@ -327,7 +331,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         if option == 'q':
             return
         key = option_key_map[option]
-        processed_data = self.handle_input(f'Enter student\' {key.replace('_', ' ').title()}: ', key)
+        processed_data = self.handle_input(f'Enter student\' {self.display_attr(key)}: ', key)
         success, msg = super().delete_item_by_key_value(key, processed_data)
         format_print(f"DELETE {'FAILED' if not success else 'SUCCESS'}", msg)
     
@@ -351,7 +355,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         if option == 'q':
             return
         key = option_key_map[option]
-        processed_data = self.handle_input(f'Enter student\'s {key.replace('_', ' ').title()}: ', key)
+        processed_data = self.handle_input(f'Enter student\'s {self.display_attr(key)}: ', key)
         success, student_or_msg = super().get_item_by_key_value(key, processed_data)
         if success and isinstance(student_or_msg, Student):
             format_print('GET', 'Here are the student info:')
@@ -458,7 +462,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
         else:
             to_update_attrs = self.all_attrs
         for attr_name in to_update_attrs:
-            new_attr_value = self.handle_input(f'Please enter the new {attr_name.replace('_', ' ').title()}: ', attr_name)
+            new_attr_value = self.handle_input(f'Please enter the new {self.display_attr(attr_name)}: ', attr_name)
             success, msg = self.check_data(attr_name, new_attr_value, need_check_key)
             if not success:
                 format_print(action='update failed', message=msg)
