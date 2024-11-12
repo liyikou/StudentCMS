@@ -156,7 +156,16 @@ class StudentCourseScore:
 
 
 class SqList:
-    def __init__(self, Item: type):
+    """
+    顺序表
+    1. is_empty: 判空
+    2. append_item: 尾插入元素
+    3. get_item_by_key_value: 根据 键值对 查询元素
+    4. delete_item: 按值删除元素 
+    5. delete_item_by_key_value: 根据 键值对 删除元素 
+    6. _update_item_attr_by_index: 根据 索引 更新元素属性
+    """
+    def __init__(self, Item):
         self.model = Item
         self.sq_list: list[Item] = []
         self.length = 0
@@ -166,7 +175,7 @@ class SqList:
     def is_empty(self):
         return self.length == 0
     
-    def is_index_valid(self, i: int):
+    def _is_index_valid(self, i: int):
         """Check if index is valid.
 
         Args:
@@ -181,15 +190,15 @@ class SqList:
             return False, f'Index--{i} out of list.'
         return True, ''
     
-    def add_item(self, item):
+    def append_item(self, item):
         """Add item to list."""
         self.sq_list.append(item)
         self.length += 1
         return True, f'{self.model.__name__} {item} added.'
     
-    def add_item_by_index(self, i: int, item):  # maybe not used
+    def _add_item_by_index(self, i: int, item):  # maybe not used
         """Add item to list with index."""
-        success, msg = self.is_index_valid(i)
+        success, msg = self._is_index_valid(i)
         if not success:
             return success, msg
         self.sq_list.insert(i, item)
@@ -208,7 +217,7 @@ class SqList:
         for i, item in enumerate(self.sq_list):  # i begins from 0.
             attr = getattr(item, key)
             if attr == value:
-                return True, i  # This index do not need to do is_index_valid().
+                return True, i  # This index do not need to do _is_index_valid().
         return False, f'{self.model.__name__} with {key}={value} not found.'
     
     def get_item_by_key_value(self, key: str, value):
@@ -234,7 +243,7 @@ class SqList:
         
     def _delete_item_by_index(self, i: int, need_check_index=True):
         if need_check_index:
-            success, msg = self.is_index_valid(i)
+            success, msg = self._is_index_valid(i)
             if not success:
                 return success, msg
         self.sq_list.pop(i)
@@ -249,9 +258,9 @@ class SqList:
         else:  # i_or_msg is a int index
             return self._delete_item_by_index(i_or_msg, False)    # type: ignore
     
-    def _update_item_by_index(self, i: int, new_item, need_check_index=True):  # to be deleted.
+    def _replace_item_by_index(self, i: int, new_item, need_check_index=True):  # to be deleted.
         if need_check_index:
-            success, msg = self.is_index_valid(i)
+            success, msg = self._is_index_valid(i)
             if not success:
                 return success, msg
         self.sq_list[i] = new_item
@@ -259,7 +268,7 @@ class SqList:
     
     def _update_item_attr_by_index(self, i: int, attr: str, new_value, need_check_index=True, need_check_key=True):
         if need_check_index:
-            success, msg = self.is_index_valid(i)
+            success, msg = self._is_index_valid(i)
             if not success:
                 return success, msg
         # Used to check if new_value is valid in UPDATE, need_check_index == True means that index is get from _get_item_index_by_key_value, means it is valid.
@@ -306,9 +315,9 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
 
     def add_student(self):  # ps. 因为之前的for循环设计，这个add方法不需要改了。👍
         """ 添加学生信息 """
-        print("Please enter student information:")
+        print("Please enter student's information:")
         input_data = {}
-        for attr in super(SqList, self).all_attrs:  # 根据 MRO 顺序，super(SqList, self) == Student
+        for attr in super(SqList, self).all_attrs:  # 根据 MRO 顺序，super(SqList, self) == Student, 其实可以直接self.all_attrs继承的父类方法
             prompt = f"{self.display_attr(attr)}{'(Optional)' if attr in super(SqList, self).optional_attrs else ''}: "
             processed_input = self.handle_input(prompt, attr)
             input_data[attr] = processed_input  # 动态创建变量方式：1. global()[attr] 2. 字典
@@ -316,7 +325,7 @@ class StudentList(SqList, Student):  # TODO: 添加了Student Number,修改一�
             if not success:
                 format_print(action='Add student', message=msg)
                 return False, msg
-        return super().add_item(Student(**input_data))
+        return super().append_item(Student(**input_data))
     
     def delete_student(self):
         """ 删除学生信息 """
