@@ -103,7 +103,8 @@ def handle_keyboard_interrupt(func):
             return func(*args, **kwargs)
         except KeyboardInterrupt:
             print('Operation canceled.')
-            return False
+        except Exception as e:
+            print(f"[Error] {e}")
     return wrapper
 
 

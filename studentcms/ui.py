@@ -43,10 +43,10 @@ class UserInterfaceManager:
                 self.manager.show_all_student_info()
                 os.system('pause')
             elif option == '2':
-                self.manager.add_student()  # TODO: 不需要返回值，error需要print
+                self.manager.add_student()
                 os.system('pause')
             elif option == '3':
-                self.manager.delete_student_2()
+                self.manager.delete_student()
                 os.system('pause')
             elif option == '4':
                 self.manager.get_student()
